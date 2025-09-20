@@ -1,0 +1,34 @@
+<!-- Backdrop -->
+<div class="backdrop" *ngIf="open" (click)="onBackdropClick($event)">
+    <!-- Panel -->
+    <div class="panel" (click)="$event.stopPropagation()">
+      <header class="panel-head">
+        <h3>Workout hinzufügen</h3>
+        <button class="icon" (click)="onCancel()">✕</button>
+      </header>
+  
+      <div class="filters">
+        <input
+          type="text"
+          placeholder="Suche in Vorlagen…"
+          [(ngModel)]="q"
+          (ngModelChange)="onQueryChange($event)" />
+        <label class="chk">
+          <input type="checkbox" (ngModel)="hideArchived()" (ngModelChange)="hideArchived.set($event)" />
+          Archiv ausblenden
+        </label>
+      </div>
+  
+      <div class="list">
+        <button class="row" *ngFor="let t of filtered()" (click)="onPick(t)">
+          <div class="title">{{ t.name }}</div>
+          <div class="sub">{{ preview(t) }}</div>
+        </button>
+        <p class="empty" *ngIf="filtered().length === 0">Keine passenden Vorlagen gefunden.</p>
+      </div>
+  
+      <footer class="panel-foot">
+        <button class="ghost" (click)="onCancel()">Abbrechen</button>
+      </footer>
+    </div>
+  </div>

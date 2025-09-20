@@ -1,0 +1,115 @@
+:host{
+  min-height: 100vh;
+  background: url('/assets/img/schloss.jpeg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6%;
+  font-family: 'Tiny5', 'Press Start 2P', system-ui, sans-serif;
+
+}
+
+.login-panel {
+  position: absolute;
+  top: 50%;
+  left: 70%;
+  transform: translate(-50%, -50%);
+  
+  /* Größe */
+  width: 450px;
+  padding: 40px;
+
+  /* Hintergrund schwarz transparent */
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 13px;
+  
+  /* Pixel-art Look */
+  font-family: 'Tiny5', monospace;
+  color: #fff;
+  text-align: left;
+
+  /* Schatten */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+}
+
+.login-title {
+  font-size: 40px;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 0 6px #6abfed, 0 0 12px #15aff7;
+}
+
+.login-panel label {
+  font-size: 18px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.login-panel input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  background: rgba(246, 238, 238, 0.1);
+  color: #fffcfc;
+}
+
+.login-panel input::placeholder {
+  color: #ddd;
+}
+
+.login-panel button {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  background: #9de8ff;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.login-panel button:hover {
+  transform: scale(1.2);
+  background: #076588;
+}
+
+/* Felder */
+.field{
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+  margin-right: 28px;
+}
+
+.field label{
+  font-size: 25px; 
+}
+
+.field input{
+  font-family: inherit;
+  font-size: 18px;
+  color: #000000;
+  padding: 12px 14px;
+  border-radius: 13px;
+  border: none;
+  background: #ffffff;
+}
+
+.helper{
+  font-size: 18px;
+  color: #fff;
+}
+.intro{
+  font-size: 18px;
+  color: #9de8ff;
+}
+
+.intro:hover{
+  color: #076588;
+  cursor: pointer;
+}

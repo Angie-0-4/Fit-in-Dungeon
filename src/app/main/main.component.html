@@ -1,0 +1,28 @@
+<div class="layout" [class.collapsed]="isCollapsed()"><!-- collapsible später, wenn du willst -->
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand" (click)="toggleSidebar()">
+        <img src="/assets/img/dragon.png" class="logo" alt="Fit in Dungeon" />
+      </div>
+  
+      <nav class="nav">
+        <a routerLink="profile"       routerLinkActive="active" class="nav-item"><span class="icon">🧝</span><span class="label">Profil</span></a>
+        <a routerLink="calendar"      routerLinkActive="active" class="nav-item"><span class="icon">📅</span><span class="label">Kalender</span></a>
+        <a routerLink="workout"  routerLinkActive="active" class="nav-item"><span class="icon">💪</span><span class="label">Workout erstellen</span></a>
+        <a routerLink="challenges"    routerLinkActive="active" class="nav-item"><span class="icon">🏆</span><span class="label">Challenges</span></a>
+        <a routerLink="inventory"     routerLinkActive="active" class="nav-item"><span class="icon">🎒</span><span class="label">Inventar</span></a>
+        <a routerLink="friends"       routerLinkActive="active" class="nav-item"><span class="icon">👥</span><span class="label">Freunde</span></a>
+        <a routerLink="achievements"  routerLinkActive="active" class="nav-item"><span class="icon">⭐</span><span class="label">Achievements</span></a>
+        <a routerLink="settings"      routerLinkActive="active" class="nav-item"><span class="icon">⚙️</span><span class="label">Einstellungen</span></a>
+      </nav>
+
+      <button class="logout">⎋ <span class="label">Logout</span></button>
+    </aside>
+  
+    <!-- Rechts: Header + Seiteninhalt -->
+    <div class="content-area">
+      <section class="content">
+        <router-outlet></router-outlet>
+      </section>
+    </div>
+  </div>

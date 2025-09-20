@@ -1,0 +1,11 @@
+<h1>{{ text }}</h1>
+
+<div class="screen">
+
+  <ul class="choices"
+      *ngIf="showChoices"
+      [class.sure-choices]="mode === 'doubt'">
+    <li class="yes" (click)="onChoose('yes')">Yes</li>
+    <li class="no"  (click)="onChoose('no')">No</li>
+  </ul>
+</div>

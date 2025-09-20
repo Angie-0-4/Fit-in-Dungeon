@@ -1,0 +1,58 @@
+
+
+.hero {
+    position: relative;
+    height: 50vh; /* halber Bildschirm */
+    background-color: black;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: height .3s ease;
+  
+    /* aus dem weißen Content-Bereich „ausbrechen“ */
+    margin: -24px -24px 16px -24px; /* gleiche Werte wie section.content padding */
+    border-radius: 0;
+    grid-column: 1 / -1; /* falls section.content ein Grid hat */
+  }
+  
+  /* Overlay für dunkleren Effekt */
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(38, 37, 37, 0.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    
+    padding: 20px 30px;
+  }
+  
+  /* Buttons/Chips oben im Bild */
+  .hero-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .chip {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .chip:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+  
+  /* Inhalt unter dem Hero */
+  .page-content {
+    padding: 16px 24px;
+  }

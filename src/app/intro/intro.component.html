@@ -1,0 +1,61 @@
+<main class="story">
+
+  <!-- Szene 1 -->
+  <section class="scene hero">
+    <div class="content">
+      <h1>Welcome to</h1>
+      <img srcset="/assets/img/dragon.png" class="logo"/>
+      <p>Train like an adventurer.</p>
+      <p>Level up with quests, XP & loot.</p>
+      <a href="#ladder"  class="cta">▼ Scroll to continue ▼</a>
+    </div>
+  </section>
+
+  <!-- Szene 2 -->
+  <section class="scene ladder" id="ladder">
+    <div>
+      <p class="a">🏋️ Track dein Training<br>
+        Halte jede Wiederholung und jedes Set fest – egal ob Squats, Deadlifts oder Push-ups.
+     </p>
+     <p class="b">📈 Fortschritt messen<br>
+        Sieh, wie deine Stärke wächst: mehr Gewicht, mehr Wiederholungen, mehr Power.
+     </p>
+   </div>
+ 
+   <div class="side right">
+     <p class="c">💪 Der Held von Muscleland<br>
+        Jeder Workout-Tag bringt dich näher an deine Bestform – werde stärker als je zuvor.
+     </p>
+     <p class="d">🔥 Motivation durch Quests<br>
+        Schalte neue Challenges frei und mach aus jedem Training ein Abenteuer.
+     </p>
+      
+    </div>
+    <span class="scroll">continue</span>
+    <div><a href="#gang" class="down">▼</a></div>
+  </section>
+
+  <section class="scene gang" id="gang">
+    <div class="content">
+      <h2 class="w">The gates of the dungeon open before you.</h2>
+      <button type="button" class="enter-btn" (click)="openModal()">
+        ENTER DUNGEON
+      </button>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <dialog #dlg class="dlg" (cancel)="$event.preventDefault()">
+    <h3>✖ Entrance denied!</h3>
+    <p>
+      You must go to Muscleland Castle first.<br>
+      Do you want to start your journey now?
+    </p>
+
+    <div class="modal-buttons">
+      <button class="yes" (click)="onYes()">YES</button>
+      <button class="no"  (click)="onNo()">NO</button>
+    </div>
+  </dialog>
+</main>
+

@@ -1,0 +1,22 @@
+<div class="login-panel">
+    <h3 class="login-title">Welcome back</h3>
+  
+    <div class="field">
+      <label>Username:</label>
+      <input [(ngModel)]="username" type="text" placeholder="TheChosenOne!" />
+    </div>
+  
+    <div class="field">
+      <label>Password:</label>
+      <input [(ngModel)]="password" type="password" placeholder="SperSecretPasword123" />
+    </div>
+  
+    <button class="btn" (click)="onLogin()" [disabled]="loading">Sign in</button>
+  
+    <p class="helper">
+      Your first adventure? No problem, just
+      <a (click)="goRegister()" class="intro">introduce</a> yourself to the King!
+    </p>
+  
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </div>

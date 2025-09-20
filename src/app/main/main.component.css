@@ -1,0 +1,154 @@
+:root { /* nur ein Scope-Container */
+    --sidedebar-w: 260px;
+    --sidebar-w-collapsed: 76px;
+  }
+
+
+/* ======================
+   Layout Grundstruktur
+   ====================== */
+   .layout {
+    display: flex;               /* Flex statt Grid */
+    min-height: 100vh;
+    background: #f3f1f1;
+    grid-template-columns: var(--sidedebar-w) 1fr;
+    
+  }
+  
+  /* Wenn collapsed */
+  .layout.collapsed .sidebar {
+    width: 70px;
+  }
+  
+  .layout.collapsed .brand img.logo {
+    max-width: 70px;  
+    margin: -25px 0 0 -12px;           /* Logo kleiner im collapsed */
+  }
+  
+  .layout.collapsed .nav-item .label,
+  .layout.collapsed .logout .label {
+    opacity: 0;
+    transform: translateX(-6px);
+    width: 0;
+    overflow: hidden;
+  }
+  
+  /* ======================
+     Sidebar
+     ====================== */
+  .sidebar {
+    width: 200px;                /* Standardbreite */
+    background: linear-gradient(180deg, #2c4b5b, #034171);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 16px 8px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    transition: width 0.25s ease;
+  }
+  
+  /* ======================
+     Logo
+     ====================== */
+  .brand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+    cursor: pointer;             /* wichtig für Klick */
+  }
+  
+  .brand img.logo {
+    max-width: 300px;
+    margin: -90px 0 0 -35px;
+    transition: max-width 0.2s ease, transform 0.2s ease;
+  }
+  
+  /* ======================
+     Navigation
+     ====================== */
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 8px;
+    flex: 1;
+  }
+  
+  .nav-item {
+    display: flex;
+    margin-top: 20px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: #d9d9d9;
+    font-size: 15px;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  
+  .nav-item.active {
+    background: #1e6091;
+    color: #fff;
+    font-weight: 600;
+  }
+  
+  /* ======================
+     Icon + Label
+     ====================== */
+  .icon {
+    width: 22px;
+    text-align: center;
+    font-size: 18px;
+  }
+  
+  .label {
+    flex: 1;
+    font-size: 15px;
+  }
+  
+  /* ======================
+     Logout Button
+     ====================== */
+  .logout {
+    margin-top: 50px;
+    border: none;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #ffffff22;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    transition: background 0.2s ease;
+  }
+  
+  .logout:hover {
+    background: #ffffff33;
+  }
+  
+  /* ======================
+     Content Bereich
+     ====================== */
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .content {
+    flex: 1;
+    padding: 24px;
+    background: #fdfdfd;
+    overflow: auto;
+  }

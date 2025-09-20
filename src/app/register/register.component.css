@@ -1,0 +1,84 @@
+:host{
+    position:fixed; inset:0;
+    display:flex; flex-direction:column;
+    justify-content:center; align-items:center;
+    background:#000; color:#fff; text-align:center;
+  }
+  
+  h1{ margin:0 0 1.5rem; font-size:2rem; }
+  
+  .choices{
+    list-style:none;
+    padding:0;
+    margin:0;
+    font-size:1.5rem;
+    font-family: Tiny5, monospace;
+  }
+  
+  .choices li{
+    margin:.5rem 0;
+    cursor:pointer;
+  }
+  .choices li::before{
+    content: "»";
+    opacity: 0;
+  }
+  
+  /* Hover-Farben pro Option */
+  .choices li.yes:hover{ color:#0f0; }  /* grün */
+  .choices li.no:hover{ color:#f00; }   /* rot */
+
+  .choices li:hover::before {
+    opacity: 1;
+  }
+
+  .sure-choices li.yes:hover {
+    color: #f00; /* rot */
+  }
+  .sure-choices li.no:hover {
+    color: #0f0; /* grün */
+  }
+
+
+  .game-container {
+    position: relative;
+    width: 100%;
+    height: 100vh; /* nimmt den ganzen Bildschirm */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .king img {
+    max-height: 70vh;
+    object-fit: contain;
+  }
+  
+  .textbox {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: black;
+    color: white;
+    border: 4px solid white;
+    padding: 16px;
+    font-family: 'Press Start 2P', monospace; /* Pixel-Schrift (Google Fonts) */
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .choices {
+    margin-top: 10px;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .choices span {
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .choices span:hover {
+    color: red;
+  }
