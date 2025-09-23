@@ -1,59 +1,134 @@
-# Finale
+# 🏋️‍♂️ Fit in Dungeon
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.1.
+*Fit in Dungeon* ist eine Webanwendung, um Workouts zu tracken und zu planen – verpackt in einem Pixel-Dungeon-Theme.  
+Das Projekt kombiniert *Angular (Frontend)* und *Node.js + Express + MongoDB (Backend)*.  
+Features sind u. a. Registrierung/Login mit Session-Cookies, Workouterstellung, Vorlagenverwaltung und Kalenderintegration.  
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Features
 
+- 👤 *User Authentifizierung*  
+  - Registrierung & Login  
+  - Session Handling über Cookies (Express-Session)
+
+- 📅 *Workout-Kalender*  
+  - Workouts hinzufügen (einmalig oder wiederkehrend)  
+  - Löschen / Bearbeiten  
+
+- 📂 *Workout-Vorlagen*  
+  - Vorlagen erstellen, duplizieren, archivieren  
+  - Eigene Übungen hinzufügen  
+
+- 🎮 *Gamified Design*  
+  - Pixel-Art / Dungeon Theme  
+  - Motivation durch spielerisches Interface  
+
+---
+
+## 📦 Voraussetzungen
+
+- *Node.js* (>= 18)  
+- *npm* (wird mit Node installiert)  
+- *Angular CLI* (npm install -g @angular/cli)  
+- *MongoDB* (lokal oder Cloud wie MongoDB Atlas)  
+- Git  
+
+---
+
+## 🔧 Installation & Nutzung
+
+### 1. Repository klonen
 ```bash
+git clone https://github.com/Angie-0-4/Fit-in-Dungeon.git
+cd Fit-in-Dungeon
+
+2. Backend installieren & starten
+
+cd server
+npm install
+
+Falls noch nicht vorhanden, eine Datei .env im server-Ordner erstellen (für Konfiguration):
+
+MONGO_URI=mongodb://localhost:27017/muscle
+SESSION_SECRET=supergeheim123
+PORT=3000
+
+Dann starten:
+
+node src/index.js
+
+👉 Das Backend läuft jetzt auf http://localhost:3000
+
+
+---
+
+3. Frontend installieren & starten
+
+cd ../finale
+npm install
 ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+👉 Das Frontend läuft jetzt auf http://localhost:4200
 
-## Code scaffolding
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+4. Anwendung öffnen
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Im Browser aufrufen:
 
-```bash
-ng generate --help
-```
+http://localhost:4200
 
-## Building
 
-To build the project run:
+---
 
-```bash
-ng build
-```
+⚙️ Erklärung der Konfiguration
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+MONGO_URI: Verbindung zur MongoDB (Standard: mongodb://localhost:27017/muscle)
 
-## Running unit tests
+SESSION_SECRET: beliebiger String für die Session-Signierung
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+PORT: Port für das Backend (Default: 3000)
 
-```bash
-ng test
-```
 
-## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
-```
+🧩 Tech Stack
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Frontend: Angular, Bootstrap, CSS
 
-## Additional Resources
+Backend: Node.js, Express, express-session
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Datenbank: MongoDB (Mongoose ODM)
+
+Auth: Session Handling mit Cookies
+
+Versionierung: GitHub
+
+
+
+---
+
+📸 Screenshots
+
+(Hier fügst du deine Screenshots ein, z. B. Login, Workout erstellen, Kalender, Profilseite usw.)
+
+![Screenshot1](public/assets/screenshots/home.png)
+![Screenshot2](public/assets/screenshots/workout.png)
+
+
+---
+
+👩‍💻 Entwicklerteam
+
+Anjelika Vasic
+
+
+
+---
+
+📜 Lizenz
+
+Nur für Studienzwecke (HTW Berlin). Keine kommerzielle Nutzung.
