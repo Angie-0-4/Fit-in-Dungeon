@@ -110,6 +110,9 @@ Auth: Session Handling mit Cookies
 
 📸 Screenshots
 
+<img width="1439" height="778" alt="Bildschirmfoto 2025-09-23 um 23 38 40" src="https://github.com/user-attachments/assets/1c6d01ab-3cc4-4800-aded-f545cdd49ebe" />
+
+
 
 
 ---
