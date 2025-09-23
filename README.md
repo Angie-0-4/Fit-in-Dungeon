@@ -1,8 +1,8 @@
 # 🏋️‍♂️ Fit in Dungeon
 
-*Fit in Dungeon* ist eine Webanwendung, um Workouts zu tracken und zu planen – verpackt in einem Pixel-Dungeon-Theme.  
+*Fit in Dungeon* ist eine Webanwendung, um Workouts zu tracken und zu planen, verpackt in einem Pixel Dungeon Theme.  
 Das Projekt kombiniert *Angular (Frontend)* und *Node.js + Express + MongoDB (Backend)*.  
-Features sind u. a. Registrierung/Login mit Session-Cookies, Workouterstellung, Vorlagenverwaltung und Kalenderintegration.  
+Features sind u. a. Registrierung/Login mit Session Cookies, Workouterstellung, Vorlagenverwaltung und Kalenderintegration.  
 
 ---
 
@@ -48,7 +48,7 @@ cd Fit-in-Dungeon
 cd server
 npm install
 
-Falls noch nicht vorhanden, eine Datei .env im server-Ordner erstellen (für Konfiguration):
+Falls noch nicht vorhanden, eine Datei .env im server Ordner erstellen (für Konfiguration):
 
 MONGO_URI=mongodb://localhost:27017/muscle
 SESSION_SECRET=supergeheim123
@@ -58,7 +58,7 @@ Dann starten:
 
 node src/index.js
 
-👉 Das Backend läuft jetzt auf http://localhost:3000
+ Das Backend läuft jetzt auf http://localhost:3000
 
 
 ---
@@ -69,7 +69,7 @@ cd ../finale
 npm install
 ng serve
 
-👉 Das Frontend läuft jetzt auf http://localhost:4200
+ Das Frontend läuft jetzt auf http://localhost:4200
 
 
 ---
@@ -95,35 +95,34 @@ PORT: Port für das Backend (Default: 3000)
 
 ---
 
-🧩 Tech Stack
+Tech Stack
 
 Frontend: Angular, Bootstrap, CSS
 
 Backend: Node.js, Express, express-session
 
-Datenbank: MongoDB (Mongoose ODM)
+Datenbank: MongoDB/MongoDB Compass (Mongoose ODM)
 
 Auth: Session Handling mit Cookies
-
-Versionierung: GitHub
-
 
 
 ---
 
 📸 Screenshots
 
-(Hier fügst du deine Screenshots ein, z. B. Login, Workout erstellen, Kalender, Profilseite usw.)
-
-![Screenshot1](public/assets/screenshots/home.png)
-![Screenshot2](public/assets/screenshots/workout.png)
 
 
 ---
 
-👩‍💻 Entwicklerteam
+👩‍💻 Entwicklerin:
 
 Anjelika Vasic
+
+Hilfeleistungen:
+
+ChatGBT:
+
+Planung, Codeoptimierung, Fehlerbehebung, README
 
 
 
@@ -131,4 +130,4 @@ Anjelika Vasic
 
 📜 Lizenz
 
-Nur für Studienzwecke (HTW Berlin). Keine kommerzielle Nutzung.
+Nur für Studienzwecke (HTW Berlin). 
