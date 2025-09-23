@@ -10,6 +10,8 @@ import { ProfileComponent } from './profile/profile.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { WorkoutComponent } from './workout/workout.component';
 import { SettingsComponent } from './settings/settings.component';
+import { SessionComponent } from './workout/session/session.component';
+
 
 export const authGuard: CanActivateFn = () => !! localStorage.getItem('token')
 
@@ -23,7 +25,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'registration', component: RegistrationComponent },
 
-  // Hauptlayout mit Sidebar/Nav → alle "inneren" Seiten
+  // Hauptlayout mit Sidebar
   {
     path: 'main',
     component: MainComponent, canActivate: [authGuard],
@@ -31,11 +33,12 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'profile' }, // Standard
       { path: 'profile', component: ProfileComponent },
       { path: 'calendar', component: CalendarComponent },
-      { path: 'workout', component: WorkoutComponent },
+      { path: 'workout', component: WorkoutComponent}, 
+      {path: 'session', component: SessionComponent},
       { path: 'settings', component: SettingsComponent }
     ]
   },
 
-  // Fallback → immer zurück auf Intro
+  // Fallback 
   { path: '**', redirectTo: 'intro' }
 ];

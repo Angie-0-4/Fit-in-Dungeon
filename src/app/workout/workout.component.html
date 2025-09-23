@@ -1,156 +1,214 @@
-
 <main class="workout-content">
-  <!-- Hero-Bild oben -->
+
   <header class="hero">
     <div class="hero-overlay">
       <div class="hero-meta">
-        <button class="chip">25. Feb</button>
-        <button class="chip">Dungeon · Tokio</button>
+        <button class="chip">{{ today() | date:'dd. MMM' }}</button>
+        <button class="chip">Dungeon · {{ city() }}</button>
+
         <div class="hero-actions">
           <button class="primary" (click)="startEmpty()">Ein leeres Workout beginnen</button>
-          <button class="secondary" (click)="createTemplate()">Neue Vorlage anlegen</button>
+          <button class="secondary" (click)="openCreate()">Neue Vorlage anlegen</button>
         </div>
       </div>
     </div>
   </header>
 
   <div class="workout-page">
-    <!-- Ordner-Leiste -->
-    <section class="folder-strip">
-      <div class="chips-scroll">
-        <button class="folder-chip"
-                [class.active]="isSelected('ALL')"
-                (click)="selectFolder('ALL')">
-          <span class="tab"></span><span class="name">Alle</span>
-        </button>
 
-        <button class="folder-chip"
-                [class.active]="isSelected('NONE')"
-                (click)="selectFolder('NONE')">
-          <span class="tab"></span><span class="name">Ohne Ordner</span>
-        </button>
+    <section class="folder-carousel">
+      <button class="arrow" (click)="prevFolder()">❮</button>
 
-        <button class="folder-chip"
-                *ngFor="let f of folders(); trackBy: trackByFolder"
-                [class.active]="isSelected(f.id)"
-                (click)="selectFolder(f.id)">
-          <span class="tab"></span><span class="name">{{ f.name }}</span>
-        </button>
+      <div class="folder-current">
+        <span class="folder-name">{{ currentFolderName() }}</span>
+      </div>
+
+      <button class="arrow" (click)="nextFolder()">❯</button>
+    </section>
+
+    <section class="folder-actions">
+      <select [ngModel]="selectedFolderId()" (ngModelChange)="jumpTo($event)">
+        <option [ngValue]="ALL">Alle</option>
+        <option [ngValue]="NONE">Ohne Ordner</option>
+        <option *ngFor="let f of folders(); trackBy: trackByFolder" [ngValue]="f.id">{{ f.name }}</option>
+      </select>
+
+      <button class="danger"
+              [disabled]="selectedFolderId() === 'ALL' || selectedFolderId() === 'NONE'"
+              (click)="deleteCurrentFolder()">Ordner löschen</button>
+
+      <div class="new-folder">
+        <input class="folder-input" placeholder="Neuen Ordner…" [(ngModel)]="newFolderName" (keyup.enter)="addFolder()" />
+        <button class="icon" (click)="addFolder()">＋</button>
       </div>
     </section>
 
-    <!-- Toolbar -->
-    <section class="toolbar">
-      <div class="left"><h3>Vorlagen</h3></div>
-      <div class="right">
-        <input class="folder-input"
-               type="text"
-               placeholder="Neuen Ordner…"
-               [(ngModel)]="newFolderName"
-               (keyup.enter)="addFolder()" />
-        <button class="icon" title="Ordner anlegen" (click)="addFolder()">＋</button>
-      </div>
-    </section>
-
-    <!-- Vorlagen-Kacheln -->
     <section class="templates">
-      <h3 *ngIf="selectedFolderId() === 'ALL'">Alle Vorlagen</h3>
-      <h3 *ngIf="selectedFolderId() === 'NONE'">Vorlagen ohne Ordner</h3>
-      <h3 *ngIf="selectedFolderId() !== 'ALL' && selectedFolderId() !== 'NONE'">
-          {{ folderName(selectedFolderId()) }}
-      </h3>
+      <h3>Vorlagen</h3>
+
+      <h4 *ngIf="selectedFolderId() === 'ALL'">Alle Vorlagen</h4>
+      <h4 *ngIf="selectedFolderId() === 'NONE'">Vorlagen ohne Ordner</h4>
+      <h4 *ngIf="selectedFolderId() !== 'ALL' && selectedFolderId() !== 'NONE'">
+        {{ currentFolderName() }}
+      </h4>
 
       <div class="card-grid">
-        <div class="card"
-             *ngFor="let t of filteredTemplates(); trackBy: trackByTemplate">
-
+        <div class="card" *ngFor="let t of filteredTemplates(); trackBy: trackByTemplate">
           <div class="card-title">{{ t.name }}</div>
-
           <div class="card-sub">{{ preview(t) }}</div>
-
-          <div class="card-meta" *ngIf="t.lastUsed">
-            Zuletzt benutzt: {{ t.lastUsed | date:'dd.MM.yyyy' }}
-          </div>
+          <div class="card-meta" *ngIf="t.lastUsed">Zuletzt benutzt: {{ t.lastUsed | date:'dd.MM.yyyy' }}</div>
 
           <div class="card-actions">
             <button class="primary" (click)="startFromTemplate(t)">Starten</button>
-            <button class="ghost"   (click)="duplicate(t)">Kopieren</button>
-            <button class="ghost"   (click)="archive(t)">Archivieren</button>
-            <button class="danger"  (click)="remove(t)">Löschen</button>
+            <button (click)="duplicate(t)">Kopieren</button>
+            <button (click)="archive(t)">Archivieren</button>
+            <button class="danger" (click)="remove(t)">Löschen</button>
           </div>
 
           <div class="move-row">
-            <span>In Ordner:</span>
-            <button class="mini"
-                    *ngFor="let f of folders(); trackBy: trackByFolder"
-                    (click)="moveToFolder(t, f.id)">
-              {{ f.name }}
-            </button>
-            <button class="mini" (click)="moveToFolder(t, null)">Ohne Ordner</button>
+            <span>Ordner:</span>
+            <select [ngModel]="t.folderId ?? ''" (ngModelChange)="moveToFolder(t, $event || null)">
+              <option value="">Ohne Ordner</option>
+              <option *ngFor="let f of folders(); trackBy: trackByFolder" [value]="f.id">{{ f.name }}</option>
+            </select>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Archiv -->
-    <section class="archive" *ngIf="archivedTemplates().length > 0">
+    <section class="archive" *ngIf="archivedTemplates().length">
       <h4>Archiv</h4>
       <div class="card-grid list">
-        <div class="card muted"
-             *ngFor="let t of archivedTemplates(); trackBy: trackByTemplate">
+        <div class="card muted" *ngFor="let t of archivedTemplates(); trackBy: trackByTemplate">
           <div class="card-title">{{ t.name }}</div>
           <div class="card-sub">{{ preview(t) }}</div>
           <div class="card-actions">
-            <button class="mini" (click)="unarchive(t)">Wiederherstellen</button>
-            <button class="mini danger" (click)="remove(t)">Löschen</button>
+            <button (click)="unarchive(t)">Wiederherstellen</button>
+            <button class="danger" (click)="remove(t)">Löschen</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Übungen aus MongoDB -->
-    <section class="mongo-exercises">
-      <hr />
-      <h3>Übungen (aus Datenbank)</h3>
-
-      <!-- Filter -->
-      <div class="filters" style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap;">
-        <input
-          [ngModel]="wQuery()"
-          (ngModelChange)="wQuery.set($event)"
-          placeholder="Suche Name / Muskel…" />
-
-        <select
-          [ngModel]="wType()"
-          (ngModelChange)="wType.set($event)">
-          <option value="">Alle Typen</option>
-          <option>Push</option><option>Pull</option><option>Legs</option>
-          <option>Core</option><option>Full Body</option><option>Conditioning</option>
-        </select>
-
-        <select
-          [ngModel]="wDifficulty()"
-          (ngModelChange)="wDifficulty.set($event)">
-          <option value="">Alle Level</option>
-          <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
-        </select>
-      </div>
-
-      <!-- Fehlermeldung -->
-      <p *ngIf="workoutError()" class="err">{{ workoutError() }}</p>
-
-      <!-- Workouts -->
-      <div class="card-grid">
-        <div class="card" *ngFor="let w of filteredWorkouts()">
-          <div class="card-title">{{ w.name }}</div>
-          <div class="card-sub">Muskelgruppe: {{ w.muscleGroup }}</div>
-          <div class="card-meta">
-            Schwierigkeit: {{ w.difficulty }} · Typ: {{ w.type }}
-          </div>
-          <div class="card-meta">Equipment: {{ w.equipment }}</div>
-          <div class="card-meta">Risiko-Level: {{ w.riskLevel }}</div>
-        </div>
-      </div>
-    </section>
   </div>
 </main>
+
+<!-- Modal: Neue Vorlage -->
+<div class="wk-modal__backdrop" *ngIf="showCreate()">
+  <div class="wk-modal">
+    <div class="wk-modal__header">
+      <h3>Neue Vorlage</h3>
+      <button class="wk-icon" (click)="closeCreate()">×</button>
+    </div>
+
+    <div class="wk-modal__body">
+      <label class="wk-lbl">Name</label>
+      <input class="wk-inp" placeholder="z. B. Push Day"
+             [ngModel]="draft()?.name || ''"
+             (ngModelChange)="updateDraftName($event)" />
+
+      <label class="wk-lbl" style="margin-top:8px;">Ordner</label>
+      <select class="wk-inp"
+              [ngModel]="draft()?.folderId ?? ''"
+              (ngModelChange)="updateDraftFolder($event)">
+        <option value="">Ohne Ordner</option>
+        <option *ngFor="let f of folders(); trackBy: trackByFolder" [value]="f.id">{{ f.name }}</option>
+      </select>
+
+      <label class="wk-lbl" style="margin-top:10px;">Übungen</label>
+
+      <!-- WICHTIG: Wrapper für Filter + Dropdown -->
+      <div class="picker-wrap">
+        <input class="wk-inp"
+               placeholder="Übung suchen (z. B. Squat)"
+               [ngModel]="pickerQuery()"
+               (ngModelChange)="pickerQuery.set($event)" />
+
+        <select class="wk-inp"
+                [ngModel]="pickerBodyPart()"
+                (ngModelChange)="pickerBodyPart.set($event)">
+          <option value="">Alle Körperteile</option>
+          <option *ngFor="let p of bodyParts" [value]="p">{{ p }}</option>
+        </select>
+
+        <!-- DROPDOWN-LISTE -->
+        <div class="picker-list">
+          <button class="picker-row"
+                  *ngFor="let w of pickableExercises()"
+                  (click)="addExerciseByWorkout(w)">
+            <div class="row-top">{{ w.name }}</div>
+            <div class="row-sub">
+              {{ w.muscleGroup || '—' }} ·
+              {{ w.difficulty || '—' }} ·
+              {{ w.type || '—' }}
+            </div>
+          </button>
+
+          <p class="muted" *ngIf="pickableExercises().length === 0">Keine Treffer.</p>
+          <p class="err" *ngIf="workoutError()">{{ workoutError() }}</p>
+        </div>
+      </div>
+
+      <div class="chip-list" *ngIf="draft()?.exercises?.length">
+        <span class="chip--small" *ngFor="let ex of draft()?.exercises; let i = index">
+          {{ ex.name }} <button class="chip-x" (click)="removeExerciseAt(i)">×</button>
+        </span>
+      </div>
+
+      <div style="margin-top:8px;">
+        <button class="wk-btn" (click)="openCustomModal()">Eigene Übung hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="wk-modal__footer">
+      <button class="wk-btn wk-btn--ghost" (click)="closeCreate()">Abbrechen</button>
+      <button class="wk-btn wk-btn--primary" (click)="saveTemplate()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Eigene Übung -->
+<div class="wk-modal__backdrop" *ngIf="showCustomModal()">
+  <div class="wk-modal wk-modal--picker">
+    <div class="wk-modal__header">
+      <h3>Eigene Übung</h3>
+      <button class="wk-icon" (click)="closeCustomModal()">×</button>
+    </div>
+
+    <div class="wk-modal__body">
+      <input class="wk-inp" placeholder="Name"
+             [ngModel]="custom().name || ''"
+             (ngModelChange)="setCustomStr('name', $event || '')" />
+
+      <select class="wk-inp"
+              [ngModel]="custom().muscleGroup || ''"
+              (ngModelChange)="setCustomStr('muscleGroup', $event || '')">
+        <option value="">Muscle Group (optional)</option>
+        <option *ngFor="let p of bodyParts" [value]="p">{{ p }}</option>
+      </select>
+
+      <div class="grid-2">
+        <input class="wk-inp" placeholder="Difficulty"
+               [ngModel]="custom().difficulty || ''"
+               (ngModelChange)="setCustomStr('difficulty', $event || '')" />
+        <input class="wk-inp" placeholder="Type"
+               [ngModel]="custom().type || ''"
+               (ngModelChange)="setCustomStr('type', $event || '')" />
+      </div>
+
+      <div class="grid-2">
+        <input class="wk-inp" placeholder="Equipment"
+               [ngModel]="custom().equipment || ''"
+               (ngModelChange)="setCustomStr('equipment', $event || '')" />
+        <input class="wk-inp" placeholder="Risk Level"
+               [ngModel]="custom().riskLevel || ''"
+               (ngModelChange)="setCustomStr('riskLevel', $event || '')" />
+      </div>
+    </div>
+
+    <div class="wk-modal__footer">
+      <button class="wk-btn wk-btn--ghost" (click)="closeCustomModal()">Abbrechen</button>
+      <button class="wk-btn wk-btn--primary" (click)="addCustomExercise()">Hinzufügen</button>
+    </div>
+  </div>
+</div>

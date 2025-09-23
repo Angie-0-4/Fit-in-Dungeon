@@ -1,53 +1,80 @@
-import { Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-/** Minimaler Typ für deine Vorlagen (exportieren, damit Calendar importieren kann) */
 export interface WorkoutTemplate {
   id: string;
   name: string;
   exercises: { name: string }[];
+  folderId?: string | null;
   archived?: boolean;
+  lastUsed?: string | Date;
 }
+
+export type AddPlanPayLoad = {
+  templateId: string;
+  day: number;          
+  start: string;        
+  durationMin: number;          
+  weekly: boolean;
+  placeByClick: boolean;
+};
 
 @Component({
   selector: 'app-add-workout-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './add-workout-modal.component.html',
-  styleUrls: ['./add-workout-modal.component.css']
+  styleUrls: ['./add-workout-modal.component.css'],
 })
 export class AddWorkoutModalComponent {
   @Input() open = false;
   @Input() templates: WorkoutTemplate[] = [];
-  @Output() pick  = new EventEmitter<WorkoutTemplate>();
   @Output() close = new EventEmitter<void>();
+  @Output() pick  = new EventEmitter<AddPlanPayLoad>();
 
-  preview(t: WorkoutTemplate): string {
-    const list = (t.exercises ?? []).map(e => e.name);
-    return list.join(', ');
+  trackByTpl = (_: number, t: WorkoutTemplate) => t.id;
+
+  search = '';
+  hideArchived = false;
+
+  selectedId: string | null = null;
+  day   = 0;
+  durationH = 1;
+  durationM = 0;
+  weekly = false;
+  placeByClick = true;
+
+  dayNames = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+
+  filtered() {
+    const q = this.search.toLowerCase().trim();
+    return this.templates
+      .filter(t => !this.hideArchived || !t.archived)
+      .filter(t => !q || t.name.toLowerCase().includes(q) || t.exercises.some(e => e.name.toLowerCase().includes(q)));
   }
 
-  q = signal<string>('');            // Suche
-  hideArchived = signal<boolean>(true);
-
-  onQueryChange(v: string){ this.q.set(v); }
-
-  filtered = computed<WorkoutTemplate[]>(() => {
-    const q = this.q().trim().toLowerCase();
-    return (this.templates ?? [])
-      .filter(t => !this.hideArchived() || !t.archived)
-      .filter(t =>
-        !q ||
-        t.name.toLowerCase().includes(q) ||
-        t.exercises.some(e => e.name.toLowerCase().includes(q))
-      );
-  });
-
-  onBackdropClick(ev: MouseEvent) {
-    const el = ev.target as HTMLElement | null;
-    if (el && el.classList.contains('backdrop')) this.onCancel();
+  preview(t: WorkoutTemplate) {
+    const names = (t.exercises || []).map(e => e.name);
+    const head = names.slice(0,3).join(', ');
+    return head + (names.length > 3 ? ' …' : '');
   }
-  onCancel(){ this.close.emit(); }
-  onPick(t: WorkoutTemplate){ this.pick.emit(t); }
+
+ 
+  private durationMin(): number {
+    const h = Math.max(0, Math.floor(this.durationH || 0));
+    const m = Math.max(0, Math.min(59, Math.floor(this.durationM || 0)));
+    return h * 60 + m || 60; 
+  }
+
+  confirm() {
+    if (!this.selectedId) return;
+
+    this.pick.emit({
+      templateId: this.selectedId!,
+      durationMin: this.durationMin(),
+      weekly: this.weekly === true,
+      placeByClick: true 
+    } as AddPlanPayLoad);
+}
 }

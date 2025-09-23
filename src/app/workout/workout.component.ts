@@ -1,26 +1,42 @@
-import { Component, computed, signal, OnInit } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { WorkoutService } from '../services/workout.service';
 
-// <-- Service für Mongo-Workouts
-import { WorkoutService, Workout } from '../services/workout.service';
 
-/* ------- Typsichere Modelle (deine Vorlagen/Folder) ------- */
+export interface Workout {
+  name: string;
+  equipment?: string;
+  difficulty?: string;   
+  muscleGroup?: string;  
+  type?: string;         
+  riskLevel?: string;
+}
+
 type ID = string;
-interface Exercise { name: string; muscle?: string; }
+
+interface Exercise {
+  name: string;
+  muscleGroup?: string;
+  difficulty?: string;
+  type?: string;
+  equipment?: string;
+  riskLevel?: string;
+}
 interface WorkoutTemplate {
   id: ID;
   name: string;
-  exercises: Exercise[];        // nie undefined
-  lastUsed?: string;            // ISO
-  folderId: ID | null;          // null = „Ohne Ordner“
+  exercises: Exercise[];
+  folderId: ID | null;
   archived?: boolean;
+  lastUsed?: string | Date;
 }
 interface Folder { id: ID; name: string; }
 
-/* ------- Hilfszeug ------- */
-const ALL   = 'ALL';
-const NONE  = 'NONE';
+
+const ALL = 'ALL';
+const NONE = 'NONE';
 type FolderFilter = typeof ALL | typeof NONE | ID;
 
 @Component({
@@ -32,35 +48,49 @@ type FolderFilter = typeof ALL | typeof NONE | ID;
 })
 export class WorkoutComponent implements OnInit {
 
-  /* =======================
-     1) Deine bisherigen Daten
-     ======================= */
+ 
+  readonly ALL  = ALL;
+  readonly NONE = NONE;
+
+
+  today = signal(new Date());
+  city  = signal('Berlin');
+
+  constructor(private ws: WorkoutService, private router: Router) {}
+
+ 
+  private persistTemplates(): void {
+    try {
+      localStorage.setItem('calendar.templates', JSON.stringify(this._templates()));
+    } catch {  }
+  }
+
+  
   private _folders = signal<Folder[]>([
     { id: 'f1', name: 'Push/Pull' },
     { id: 'f2', name: 'Legs' },
     { id: 'f3', name: 'Cardio' },
   ]);
+
   private _templates = signal<WorkoutTemplate[]>([
     {
       id: 't1',
       name: 'Donnerstag kurz / Sonntag lang',
       exercises: [
-        { name: 'Pull Up (Assisted)' },
-        { name: 'Lat Pulldown (Cable)' },
-        { name: 'Seated Row (Cable)' },
-        { name: 'Cable Pulldown' },
-        { name: 'Bicep Curl (Dumbbell)' },
+        { name: 'Pull Up (Assisted)', muscleGroup: 'Back' },
+        { name: 'Lat Pulldown (Cable)', muscleGroup: 'Back' },
+        { name: 'Seated Row (Cable)', muscleGroup: 'Back' },
       ],
       lastUsed: '2025-01-24',
-      folderId: 'f1',
+      folderId: null,
     },
     {
       id: 't2',
       name: 'Push Day',
       exercises: [
-        { name: 'Bench Press (Barbell)' },
-        { name: 'Shoulder Press (Dumbbell)' },
-        { name: 'Triceps Pushdown' },
+        { name: 'Bench Press (Barbell)', muscleGroup: 'Chest' },
+        { name: 'Shoulder Press (Dumbbell)', muscleGroup: 'Shoulders' },
+        { name: 'Triceps Pushdown', muscleGroup: 'Arms' },
       ],
       lastUsed: '2025-02-15',
       folderId: 'f1',
@@ -69,33 +99,20 @@ export class WorkoutComponent implements OnInit {
       id: 't3',
       name: 'Leg Day',
       exercises: [
-        { name: 'Squat' },
-        { name: 'Romanian Deadlift' },
-        { name: 'Leg Press' },
+        { name: 'Squat', muscleGroup: 'Legs' },
+        { name: 'Romanian Deadlift', muscleGroup: 'Legs' },
+        { name: 'Leg Press', muscleGroup: 'Legs' },
       ],
       folderId: 'f2',
-    },
-    {
-      id: 't4',
-      name: 'Mobility 30',
-      exercises: [
-        { name: 'Hip Opener' },
-        { name: 'T-Spine Rotation' },
-      ],
-      folderId: 'f3',
       archived: true,
     },
   ]);
 
-  /* Eingaben */
-  newFolderName = '';
 
-  /* Aktueller Ordnerfilter */
   selectedFolderId = signal<FolderFilter>(ALL);
 
-  /* Abgeleitete Listen */
-  folders = computed(() => this._folders());
-  templates = computed(() => this._templates().filter(t => !t.archived));
+  folders            = computed(() => this._folders());
+  templates         = computed(() => this._templates().filter(t => !t.archived));
   archivedTemplates = computed(() => this._templates().filter(t => !!t.archived));
 
   filteredTemplates = computed<WorkoutTemplate[]>(() => {
@@ -106,132 +123,294 @@ export class WorkoutComponent implements OnInit {
     return list.filter(t => t.folderId === id);
   });
 
-  /* ---------- Template-Helfer ---------- */
-  trackByTemplate = (_: number, t: WorkoutTemplate) => t.id;
-  trackByFolder   = (_: number, f: Folder) => f.id;
+  currentFolderIndex = computed(() => {
+    const id = this.selectedFolderId();
+    if (id === ALL || id === NONE) return -1;
+    return this.folders().findIndex(f => f.id === id);
+  });
 
-  preview(t: WorkoutTemplate): string {
-    const names = t.exercises.map(e => e.name);
-    const head  = names.slice(0, 3).join(', ');
-    const more  = names.length > 3 ? ' …' : '';
-    return head + more;
+  currentFolderName = computed(() => {
+    const id = this.selectedFolderId();
+    if (id === ALL)  return 'Alle';
+    if (id === NONE) return 'Ohne Ordner';
+    return this.folders().find(f => f.id === id)?.name ?? '';
+  });
+
+  prevFolder(): void {
+    const list = this.folders();
+    const id = this.selectedFolderId();
+    if (id === ALL)  { this.selectedFolderId.set(NONE); return; }
+    if (id === NONE) { if (list.length) this.selectedFolderId.set(list[0].id); return; }
+    const i = this.currentFolderIndex();
+    if (i <= 0) { this.selectedFolderId.set(NONE); return; }
+    this.selectedFolderId.set(list[i - 1].id);
   }
 
-  /* ---------- UI-Aktionen (dein Code) ---------- */
-  selectFolder(id: FolderFilter): void {
-    this.selectedFolderId.set(id);
+  nextFolder(): void {
+    const list = this.folders();
+    const id = this.selectedFolderId();
+    if (id === ALL)  { if (list.length) this.selectedFolderId.set(list[0].id); return; }
+    if (id === NONE) { if (list.length) this.selectedFolderId.set(list[0].id); return; }
+    const i = this.currentFolderIndex();
+    if (i < 0) { if (list.length) this.selectedFolderId.set(list[0].id); return; }
+    if (i >= list.length - 1) { this.selectedFolderId.set(ALL); return; }
+    this.selectedFolderId.set(list[i + 1].id);
   }
-  isSelected(id: FolderFilter): boolean {
-    return this.selectedFolderId() === id;
-  }
+
+  jumpTo(id: FolderFilter) { this.selectedFolderId.set(id); }
 
   addFolder(): void {
     const name = this.newFolderName.trim();
     if (!name) return;
     const id = 'f_' + Math.random().toString(36).slice(2, 9);
-    this._folders.update(list => [...list, { id, name }]);
+    this._folders.update(v => [...v, { id, name }]);
     this.newFolderName = '';
+    this.selectedFolderId.set(id);
   }
 
-  moveToFolder(t: WorkoutTemplate, folderId: ID | null): void {
-    this._templates.update(list =>
-      list.map(x => (x.id === t.id ? { ...x, folderId } : x))
-    );
+  deleteCurrentFolder(): void {
+    const id = this.selectedFolderId();
+    if (id === ALL || id === NONE) return;
+
+    this._templates.update(ts => ts.map(t => (t.folderId === id ? { ...t, folderId: null } : t)));
+    this._folders.update(fs => fs.filter(f => f.id !== id));
+    this.selectedFolderId.set(ALL);
+
+    this.persistTemplates(); 
   }
 
-  createTemplate(): void {
-    const id = 't_' + Math.random().toString(36).slice(2, 9);
-    const draft: WorkoutTemplate = {
-      id,
-      name: 'Neues Workout',
+  moveToFolder(t: WorkoutTemplate, folderId: ID | null) {
+    this._templates.update(list => list.map(x => x.id === t.id ? { ...x, folderId } : x));
+    this.persistTemplates(); 
+  }
+
+
+  showCreate = signal(false);
+  draft = signal<WorkoutTemplate | null>(null);
+
+  newFolderName = '';
+
+  openCreate(): void {
+    const cur = this.selectedFolderId();
+    this.draft.set({
+      id: 'draft',
+      name: '',
       exercises: [],
-      folderId: this.selectedFolderId() === ALL || this.selectedFolderId() === NONE
-        ? null
-        : (this.selectedFolderId() as ID),
-    };
-    this._templates.update(list => [draft, ...list]);
+      folderId: cur === ALL ? null : (cur === NONE ? null : (cur as string)),
+    });
+    this.showCreate.set(true);
   }
 
-  duplicate(t: WorkoutTemplate): void {
+  closeCreate(): void {
+    this.showCreate.set(false);
+    this.draft.set(null);
+  }
+
+  updateDraftName(name: string) {
+    const d = this.draft(); if (d) this.draft.set({ ...d, name });
+  }
+
+  updateDraftFolder(folderId: string) {
+    const d = this.draft(); if (d) this.draft.set({ ...d, folderId: folderId || null });
+  }
+
+  removeExerciseAt(i: number) {
+    const d = this.draft(); if (!d) return;
+    this.draft.set({ ...d, exercises: d.exercises.filter((_, idx) => idx !== i) });
+  }
+
+  saveTemplate(): void {
+    const d = this.draft(); if (!d) return;
+    const name = (d.name || '').trim();
+    if (!name || d.exercises.length === 0) return;
+
+    const id = 't_' + Math.random().toString(36).slice(2, 9);
+    this._templates.update(list => [
+      { id, name, exercises: d.exercises, folderId: d.folderId ?? null, archived: false },
+      ...list
+    ]);
+
+    this.showCreate.set(false);
+    this.draft.set(null);
+
+    this.persistTemplates();
+  }
+
+  duplicate(t: WorkoutTemplate) {
     const id = 't_' + Math.random().toString(36).slice(2, 9);
     const copy: WorkoutTemplate = { ...t, id, name: `${t.name} (Kopie)`, archived: false };
     this._templates.update(list => [copy, ...list]);
+    this.persistTemplates();
   }
 
-  archive(t: WorkoutTemplate): void {
-    this._templates.update(list =>
-      list.map(x => (x.id === t.id ? { ...x, archived: true } : x))
-    );
+  archive(t: WorkoutTemplate) {
+    this._templates.update(list => list.map(x => x.id === t.id ? { ...x, archived: true } : x));
+    this.persistTemplates(); 
   }
 
-  unarchive(t: WorkoutTemplate): void {
-    this._templates.update(list =>
-      list.map(x => (x.id === t.id ? { ...x, archived: false } : x))
-    );
+  unarchive(t: WorkoutTemplate) {
+    this._templates.update(list => list.map(x => x.id === t.id ? { ...x, archived: false } : x));
+    this.persistTemplates();
   }
 
-  remove(t: WorkoutTemplate): void {
+  remove(t: WorkoutTemplate) {
     this._templates.update(list => list.filter(x => x.id !== t.id));
+    this.persistTemplates(); 
   }
 
-  startFromTemplate(t: WorkoutTemplate): void {
-    console.log('Starten mit Vorlage:', t);
+  startFromTemplate(t: WorkoutTemplate) {
+    
+    this._templates.update(list =>
+      list.map(x => x.id === t.id ? { ...x, lastUsed: new Date().toISOString() } : x)
+    );
+    this.persistTemplates(); 
+
+    console.log('Start mit Vorlage:', t);
+    this.router.navigate(['/main/session'], { state: { template: t } });
   }
 
-  startEmpty(): void {
+  startEmpty() {
     console.log('Leeres Workout starten');
+    this.router.navigate(['/main/session'], { state: { template: null } });
   }
 
-  // Anzeigename für aktuellen Folder-Filter
-  folderName(filter: 'ALL' | 'NONE' | string): string {
-    if (filter === 'ALL')  return 'Alle Vorlagen';
-    if (filter === 'NONE') return 'Vorlagen ohne Ordner';
-    const f = this.folders().find(x => x.id === filter);
-    return f ? f.name : '';
-  }
 
-  /* =======================
-     2) NEU: Daten aus Mongo
-     ======================= */
-
-  // Server-Workouts (Mongo)
   workouts = signal<Workout[]>([]);
   workoutError = signal<string>('');
 
-  // Filter für Server-Workouts
-  wQuery = signal<string>('');        // Suchtext
-  wType = signal<string>('');         // Push/Pull/Legs/...
-  wDifficulty = signal<string>('');   // Beginner/Intermediate/Advanced
+ 
+  pickerQuery    = signal('');
+  pickerBodyPart = signal<string>(''); 
 
-  // Gefilterte Server-Workouts
-  filteredWorkouts = computed<Workout[]>(() => {
-    const q = this.wQuery().toLowerCase();
-    const t = this.wType();
-    const d = this.wDifficulty();
+  
+  bodyParts: string[] = [
+    'Arms','Biceps','Triceps','Forearms',
+    'Shoulders','Chest','Back','Lats','Lower Back',
+    'Core','Abs','Obliques',
+    'Legs','Quads','Hamstrings','Glutes','Calves',
+    'Full Body','Cardio','Neck'
+  ];
 
-    return this.workouts().filter(w =>
-      (!t || w.type === t) &&
-      (!d || w.difficulty === d) &&
-      (!q || w.name.toLowerCase().includes(q) || w.muscleGroup.toLowerCase().includes(q))
-    );
+  
+  private bpMap: Record<string, string[]> = {
+    arms: ['arms', 'biceps', 'triceps', 'forearms'],
+    legs: ['legs', 'quads', 'hamstrings', 'glutes', 'calves'],
+    back: ['back', 'lats', 'lower back', 'back/biceps'],
+    shoulders: ['shoulders', 'delts'],
+    core: ['core', 'abs', 'obliques'],
+    chest: ['chest'],
+    cardio: ['cardio'],
+    'full body': ['full body', 'full-body']
+  };
+
+  pickableExercises = computed<Workout[]>(() => {
+    const q     = (this.pickerQuery() || '').toLowerCase().trim();
+    const bpRaw = (this.pickerBodyPart() || '').toLowerCase().trim();
+    const all   = this.workouts();
+
+    const allowed = bpRaw ? (this.bpMap[bpRaw] ?? [bpRaw]) : null;
+
+    return all
+      .filter(w => {
+        const name   = (w.name || '').toLowerCase();
+        const muscle = (w.muscleGroup || '').toLowerCase();
+
+        const nameHit = !q || name.includes(q);
+        const bpHit   = !allowed || allowed.some(a => muscle === a || muscle.includes(a));
+
+        return nameHit && bpHit;
+      })
+      .slice(0, 400);
   });
 
-  constructor(private ws: WorkoutService) {}
+  addExerciseByWorkout(w: Workout) {
+    const d = this.draft(); if (!d) return;
+    if (d.exercises.some(e => e.name === w.name)) return;
+    const ex: Exercise = {
+      name: w.name,
+      muscleGroup: w.muscleGroup,
+      difficulty: w.difficulty,
+      type: w.type,
+      equipment: w.equipment,
+      riskLevel: w.riskLevel
+    };
+    this.draft.set({ ...d, exercises: [...d.exercises, ex] });
+  }
 
-  ngOnInit(): void {
-    this.ws.list().subscribe({
-      next: (res: Workout[]) => {
-        // wir bekommen direkt ein Array
-        this.workouts.set(res);
+ 
+  showCustomModal = signal(false);
+
+  openCustomModal()  { this.showCustomModal.set(true); }
+  closeCustomModal() { this.showCustomModal.set(false); }
+  setCustomStr<K extends keyof Exercise>(key: K, value: string) {
+    this.custom.set({ ...this.custom(), [key]: value });
+  }
+
+ 
+  custom = signal<Partial<Workout>>({
+    name: '',
+    muscleGroup: '',
+    difficulty: '',
+    type: '',
+    equipment: '',
+    riskLevel: ''
+  });
+
+  addCustomExercise(): void {
+    const c = this.custom();
+    const name = (c.name || '').trim();
+    if (!name) return;
+
+    const payload: Partial<Workout> = {
+      name,
+      muscleGroup: c.muscleGroup || '',
+      difficulty:  c.difficulty  || '',
+      type:        c.type        || '',
+      equipment:   c.equipment   || '',
+      riskLevel:   c.riskLevel   || ''
+    };
+
+   
+    this.workouts.update(arr => [{ ...(payload as Workout) }, ...arr]);
+
+ 
+    this.ws.create(payload).subscribe({
+      next: saved => {
+
+        this.workouts.update(arr => [saved, ...arr.filter((_, i) => i !== 0)]);
+        this.resetCustom();
       },
-      error: (err: unknown) => {
-        // sauber typisieren und Fehlermeldung setzen
-        const msg =
-          typeof err === 'object' && err !== null && 'message' in err
-            ? String((err as any).message)
-            : 'Failed to load workouts';
-        this.workoutError.set(msg);
-      }
+      error: _ => this.resetCustom()
     });
   }
+
+  resetCustom(): void {
+    this.custom.set({ name: '', muscleGroup: '', difficulty: '', type: '', equipment: '', riskLevel: '' });
+  }
+
+  
+  ngOnInit(): void {
+    // Standardwerte setzen
+    this.pickerQuery.set('');
+    this.pickerBodyPart.set('');
+  
+    // Workouts aus Service laden
+    this.ws.list().subscribe({
+      next: arr => this.workouts.set(arr || []),
+      error: err => this.workoutError.set(err?.message ?? 'Fehler beim Laden'),
+    });
+
+   
+    this.persistTemplates();
+  }
+
+ 
+  preview(t: { exercises: { name: string }[] }): string {
+    const names = (t.exercises || []).map(e => e.name);
+    const head  = names.slice(0, 3).join(', ');
+    return head + (names.length > 3 ? ' …' : '');
+  }
+
+  trackByTemplate = (_: number, t: WorkoutTemplate) => t.id;
+  trackByFolder   = (_: number, f: Folder)         => f.id;
 }

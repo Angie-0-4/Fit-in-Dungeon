@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: flex-end;
   padding-right: 6%;
-  font-family: 'Tiny5', 'Press Start 2P', system-ui, sans-serif;
+  font-family: 'Tiny5', 'Press Start 2P', sans-serif;
 
 }
 
@@ -15,20 +15,17 @@
   left: 70%;
   transform: translate(-50%, -50%);
   
-  /* Größe */
+
   width: 450px;
   padding: 40px;
 
-  /* Hintergrund schwarz transparent */
+
   background: rgba(0, 0, 0, 0.6);
   border-radius: 13px;
-  
-  /* Pixel-art Look */
-  font-family: 'Tiny5', monospace;
   color: #fff;
   text-align: left;
 
-  /* Schatten */
+  
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
 }
 
@@ -78,12 +75,12 @@
   background: #076588;
 }
 
-/* Felder */
+
 .field{
   display: grid;
   gap: 8px;
   margin-bottom: 20px;
-  margin-right: 28px;
+  margin-right: 0;
 }
 
 .field label{
@@ -112,4 +109,7 @@
 .intro:hover{
   color: #076588;
   cursor: pointer;
+}
+.error {
+  color: red;
 }

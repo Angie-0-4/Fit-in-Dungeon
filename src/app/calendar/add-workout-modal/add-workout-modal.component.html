@@ -1,34 +1,60 @@
-<!-- Backdrop -->
-<div class="backdrop" *ngIf="open" (click)="onBackdropClick($event)">
-    <!-- Panel -->
-    <div class="panel" (click)="$event.stopPropagation()">
-      <header class="panel-head">
-        <h3>Workout hinzufügen</h3>
-        <button class="icon" (click)="onCancel()">✕</button>
+
+<div class="wk-modal__backdrop" *ngIf="open" (click)="close.emit()">
+
+    <div class="wk-modal" (click)="$event.stopPropagation()">
+  
+      <header class="wk-modal__header">
+        <h3>Workout auswählen</h3>
+        <button class="wk-btn--icon" (click)="close.emit()">✕</button>
       </header>
   
-      <div class="filters">
-        <input
-          type="text"
-          placeholder="Suche in Vorlagen…"
-          [(ngModel)]="q"
-          (ngModelChange)="onQueryChange($event)" />
-        <label class="chk">
-          <input type="checkbox" (ngModel)="hideArchived()" (ngModelChange)="hideArchived.set($event)" />
-          Archiv ausblenden
-        </label>
-      </div>
+      <div class="wk-modal__body">
+       
+        <div class="row-between">
+          <div class="col" style="flex:1;">
+            <label class="wk-lbl">Suche in Vorlagen…</label>
+            <input class="wk-inp" [(ngModel)]="search" placeholder="z. B. Push Day" />
+          </div>
   
-      <div class="list">
-        <button class="row" *ngFor="let t of filtered()" (click)="onPick(t)">
-          <div class="title">{{ t.name }}</div>
-          <div class="sub">{{ preview(t) }}</div>
-        </button>
-        <p class="empty" *ngIf="filtered().length === 0">Keine passenden Vorlagen gefunden.</p>
-      </div>
+          <label class="archive-toggle">
+            <input type="checkbox" [(ngModel)]="hideArchived" />
+            <span>Archiv ausblenden</span>
+          </label>
+        </div>
   
-      <footer class="panel-foot">
-        <button class="ghost" (click)="onCancel()">Abbrechen</button>
-      </footer>
-    </div>
+       
+        <div class="picker-list">
+          <button
+            class="picker-row"
+            *ngFor="let t of filtered(); trackBy: trackByTpl"
+            [class.active]="selectedId === t.id"
+            (click)="selectedId = t.id">
+            <div class="picker-title">{{ t.name }}</div>
+            <div class="picker-sub">{{ preview(t) }}</div>
+          </button>
+          <p class="picker-sub" *ngIf="!filtered().length">Keine Treffer.</p>
+        </div>
+  
+  
+          <div class="col">
+            <label class="wk-lbl">Dauer (Stunden)</label>
+            <input class="wk-inp small" type="number" min="0" [(ngModel)]="durationH" />
+          </div>
+          <div class="col">
+            <label class="wk-lbl">Dauer (Minuten)</label>
+            <input class="wk-inp small" type="number" min="0" max="59" [(ngModel)]="durationM" />
+          </div>
+  
+          <label class="wk-chk" style="grid-column: 1 / -1; margin-top: 4px;">
+            <input type="checkbox" [(ngModel)]="weekly" />
+            <span>Jede Woche am gleichen Tag</span>
+          </label>
+        </div>
+      
+  
+      <div class="wk-modal__footer">
+        <button class="wk-btn" (click)="close.emit()">Abbrechen</button>
+        <button class="wk-btn wk-btn--primary" [disabled]="!selectedId" (click)="confirm()">Weiter</button>
   </div>
+    </div>
+</div>

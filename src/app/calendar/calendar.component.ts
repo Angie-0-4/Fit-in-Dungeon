@@ -1,19 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-// Modal import (Pfad wie unten im Ordner-Aufbau)
 import {
   AddWorkoutModalComponent,
-  WorkoutTemplate
+  WorkoutTemplate,
+  AddPlanPayLoad, 
 } from './add-workout-modal/add-workout-modal.component';
 
 type CalEvent = {
   id: string;
   title: string;
-  day: number;        // 0 = Mo ... 6 = So
-  start: string;      // "HH:MM"
-  end: string;        // "HH:MM"
-  type?: 'strength' | 'cardio' | 'mobility' | 'other';
+  day: number;             
+  start: string;            
+  end: string;              
+  type?: 'strength'|'cardio'|'mobility'|'other';
+  weekly?: boolean;        
+  dateISO?: string;         
 };
 
 @Component({
@@ -21,61 +22,61 @@ type CalEvent = {
   standalone: true,
   imports: [CommonModule, AddWorkoutModalComponent],
   templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.css']
+  styleUrls: ['./calendar.component.css'],
 })
 export class CalendarComponent implements OnInit {
+  
 
-  // Modal steuern
-  showAddModal = false;
+  showAddModal = signal(false);
+  templates = signal<WorkoutTemplate[]>([]);
+  openAddModal()  { this.showAddModal.set(true); }
+  closeAddModal() { this.showAddModal.set(false); }
 
-  // Vorlagen, die im Modal erscheinen (später aus deinem Workout-Service/API laden)
-  templates: WorkoutTemplate[] = [];
 
-  // Kalender-Setup
-  readonly START_HOUR = 6;
-  readonly END_HOUR = 22;
-  readonly SLOT_HEIGHT = 48; // px pro Stunde
+  readonly START_HOUR = 0;
+  readonly END_HOUR   = 24;
+  readonly SLOT_PX    = 48;
 
-  weekStart!: Date;     // Montag-Start
-  weekDays!: { label: string; date: Date }[];
+  weekStart!: Date;                              
+  weekDays!: { label: string; date: Date }[];    
 
-  // Events im Kalender (kannst du leer lassen und per Modal+Click hinzufügen)
-  events: CalEvent[] = [];
+  
+  events = signal<CalEvent[]>([]);
+
+ 
+  placing = signal(false);
+  previewDay   = signal(0);
+  previewStart = signal('08:00');
+  previewEnd   = signal('09:00');
+  private pendingTemplateId: string | null = null;
+  private pendingWeekly = false;
+
+
+  private previewDurationMin = 60;
+
 
   ngOnInit(): void {
     this.setWeek(new Date());
 
-    // Demo-Vorlagen (bis du aus dem Workout-Bereich lieferst)
-    this.templates = [
-      { id: 't1', name: 'Push Day',  exercises: [{ name: 'Bench Press' }, { name: 'Shoulder Press' }] },
-      { id: 't2', name: 'Leg Day',   exercises: [{ name: 'Squat' }, { name: 'Romanian Deadlift' }] },
-      { id: 't3', name: 'Cardio 45', exercises: [{ name: 'Treadmill' }], archived: false },
-    ];
+   
+    try {
+      const raw = localStorage.getItem('calendar.templates');
+      if (raw) this.templates.set(JSON.parse(raw));
+    } catch (_) {  }
+    if (!this.templates().length) {
+      this.templates.set([
+        { id: 't1', name: 'Push Day',  exercises: [{ name: 'Bench Press' }, { name: 'Shoulder Press' }] },
+        { id: 't2', name: 'Leg Day',   exercises: [{ name: 'Squat' }, { name: 'Romanian Deadlift' }] },
+        { id: 't3', name: 'Cardio 45', exercises: [{ name: 'Treadmill' }], archived: false },
+      ]);
+    }
   }
 
-  // Callback wenn im Modal eine Vorlage gewählt wurde
-  onTemplatePicked(t: WorkoutTemplate) {
-    this.showAddModal = false;
-    // Hier NUR loggen – Platzhalter. Du kannst hier sofort eine „Platzierung“
-    // triggern oder nach einem Klick im Raster einfügen (siehe unten).
-    console.log('Workout gewählt:', t);
-    // Beispiel: direkt am Montag 07:30–09:00 eintragen:
-    // this.addEventFromTemplate(t, 0, '07:30', '09:00');
-  }
-
-  // Beispiel-Helfer, um aus einer Vorlage ein Event zu basteln
-  addEventFromTemplate(t: WorkoutTemplate, day: number, start: string, end: string) {
-    const id = 'ev_' + Math.random().toString(36).slice(2, 8);
-    this.events = [
-      ...this.events,
-      { id, title: t.name, day, start, end, type: 'strength' }
-    ];
-  }
 
   setWeek(base: Date) {
     const d = new Date(base);
-    const day = (d.getDay() + 6) % 7;  // Montag = 0
-    d.setDate(d.getDate() - day);
+    const dow = (d.getDay() + 6) % 7; 
+    d.setDate(d.getDate() - dow);
     d.setHours(0,0,0,0);
     this.weekStart = d;
 
@@ -86,57 +87,172 @@ export class CalendarComponent implements OnInit {
       return { label: fmt.format(date), date };
     });
   }
-
   prevWeek(){ const d = new Date(this.weekStart); d.setDate(d.getDate()-7); this.setWeek(d); }
   nextWeek(){ const d = new Date(this.weekStart); d.setDate(d.getDate()+7); this.setWeek(d); }
+
 
   hours(): string[] {
     const out: string[] = [];
     for (let h = this.START_HOUR; h <= this.END_HOUR; h++) {
-      out.push(String(h).padStart(2,'0')+':00');
+      out.push(String(h).padStart(2, '0') + ':00');
     }
     return out;
   }
+  private dayDateISO(dayIndex: number): string {
+    const d = new Date(this.weekStart);
+    d.setDate(d.getDate() + dayIndex);
+    d.setHours(0,0,0,0);
+    return d.toISOString().slice(0,10); 
+  }
+  private toMin(t: string) { const [h,m]=t.split(':').map(Number); return (h - this.START_HOUR) * 60 + m; }
+  private minToHHMM(min: number) {
+    const total = Math.max(0, Math.min((this.END_HOUR - this.START_HOUR) * 60, min));
+    const h = Math.floor(total/60) + this.START_HOUR;
+    const m = total % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+  private addMinutes(hhmm: string, minutes: number): string {
+    const [h, m] = hhmm.split(':').map(Number);
+    const tot = h * 60 + m + (minutes || 0);
+    const H = Math.floor(tot / 60);
+    const M = tot % 60;
+    return `${String(H).padStart(2,'0')}:${String(M).padStart(2,'0')}`;
+  }
 
-  // Position/Style für Event-Kacheln
+
   styleFor(ev: CalEvent) {
-    const toMin = (t:string)=>{ const [h,m]=t.split(':').map(Number); return (h-this.START_HOUR)*60+m; };
-    const top = Math.max(0, toMin(ev.start) * (this.SLOT_HEIGHT/60));
-    const height = Math.max(28, (toMin(ev.end)-toMin(ev.start)) * (this.SLOT_HEIGHT/60));
-    const {bg,bd}=this.colorFor(ev.type);
+    const top = Math.max(0, this.toMin(ev.start) * (this.SLOT_PX/60));
+    const height = Math.max(28, (this.toMin(ev.end) - this.toMin(ev.start)) * (this.SLOT_PX/60));
+    const { bg, bd } = this.colorFor(ev.type);
     return { top: `${top}px`, height: `${height}px`, background: bg, borderColor: bd };
   }
+  colorFor(type: CalEvent['type'] = 'other'){
+    switch (type) {
+      case 'strength': return { bg:'rgba(33,150,243,.18)', bd:'#2196f3' };
+      case 'cardio':   return { bg:'rgba(244,67,54,.18)',  bd:'#f44336' };
+      case 'mobility': return { bg:'rgba(76,175,80,.18)',  bd:'#4caf50' };
+      default:         return { bg:'rgba(158,158,158,.18)',bd:'#9e9e9e' };
+    }
+  }
+  eventsByDay(day: number): CalEvent[] {
+    const iso = this.dayDateISO(day);
+    return this.events().filter(ev => ev.day === day && (ev.weekly === true || ev.dateISO === iso));
+  }
+  evTrack(_idx: number, ev: CalEvent) { return ev.id; }
 
-  colorFor(type: CalEvent['type']='other'){
-    switch(type){
-      case 'strength': return { bg:'rgba(33,150,243,.18)', bd:'#2196f3' }; // blau
-      case 'cardio':   return { bg:'rgba(244,67,54,.18)',  bd:'#f44336' }; // rot
-      case 'mobility': return { bg:'rgba(76,175,80,.18)',  bd:'#4caf50' }; // grün
-      default:         return { bg:'rgba(158,158,158,.18)',bd:'#9e9e9e' }; // grau
+  private addEventFromTemplate(
+    t: WorkoutTemplate,
+    day: number,
+    start: string,
+    end: string,
+    weekly: boolean = false
+  ): void {
+    const id = 'ev_' + Math.random().toString(36).slice(2, 8);
+    const ev: CalEvent = { id, title: t.name, day, start, end, type: 'strength', weekly: weekly === true };
+    if (!weekly) ev.dateISO = this.dayDateISO(day); 
+    this.events.update(arr => [...arr, ev]);
+  }
+  removeEvent(ev: CalEvent): void {
+    if (ev.weekly) {
+     
+      this.events.update(list => list.filter(x => x.id !== ev.id));
+    } else {
+     
+      this.events.update(list => list.filter(x => !(x.id === ev.id && x.dateISO === ev.dateISO)));
     }
   }
 
-  eventsByDay(day: number) {
-    return this.events.filter(e => e.day === day);
-  }
-  evTrack(_index: number, ev: CalEvent) { return ev.id; }
+  
+  addPickedWorkout(e: AddPlanPayLoad) {
+   
+    this.closeAddModal();
 
-  // Optional: Klick in eine Day-Spalte, um Event an einer Zeit zu droppen
-  onDayClick(dayIndex: number, ev: MouseEvent) {
+    const t = this.templates().find(x => x.id === e.templateId);
+    if (!t) return;
+
+
+    this.previewDurationMin = e.durationMin ?? 60;
+
+    if (e.placeByClick) {
+      
+      this.pendingTemplateId = t.id;
+      this.pendingWeekly = !!e.weekly;
+      this.placing.set(true);
+      this.previewDay.set(e.day ?? 0);
+      this.previewStart.set(e.start ?? '08:00');
+      this.previewEnd.set(this.addMinutes(this.previewStart(), this.previewDurationMin));
+      return;
+    }
+
+   
+    const end = this.addMinutes(e.start, this.previewDurationMin);
+    this.addEventFromTemplate(t, e.day, e.start, end, e.weekly === true);
+  }
+
+
+  onDayMouseMove(dayIndex: number, ev: MouseEvent) {
+    if (!this.placing()) return;
     const target = ev.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
-    const y = ev.clientY - rect.top; // px relativ zur Spalte
-    const minutesFromStart = Math.round(y / (this.SLOT_HEIGHT/60));
-    const totalMin = minutesFromStart + this.START_HOUR * 60;
-    const hh = String(Math.floor(totalMin / 60)).padStart(2,'0');
-    const mm = String(totalMin % 60).padStart(2,'0');
-    const start = `${hh}:${mm}`;
-    const end   = `${hh}:${String((parseInt(mm,10)+60)%60).padStart(2,'0')}`; // +60min simple
-
-    // Hier könntest du den zuletzt ausgewählten Template-Namen merken.
-    // Für das Demo nehmen wir den ersten Template (falls vorhanden).
-    if (this.templates.length > 0) {
-      this.addEventFromTemplate(this.templates[0], dayIndex, start, end);
+    const y = ev.clientY - rect.top; 
+    const minutes = Math.round(y / (this.SLOT_PX/60));
+    const start = this.minToHHMM(minutes);
+    this.previewDay.set(dayIndex);
+    this.previewStart.set(start);
+    this.previewEnd.set(this.addMinutes(start, this.previewDurationMin));
+  }
+  onDayClick(dayIndex: number, _ev: MouseEvent) {
+    if (!this.placing()) return;
+    this.previewDay.set(dayIndex);
+    this.confirmPlace();
+  }
+  @HostListener('window:keydown', ['$event'])
+  onKey(e: KeyboardEvent){
+    if (!this.placing()) return;
+    const step = 15;
+    const startMin = this.toMin(this.previewStart());
+    const endMin   = this.toMin(this.previewEnd());
+    if (e.key === 'ArrowUp') {
+      this.previewStart.set(this.minToHHMM(startMin - step));
+      this.previewEnd.set(this.minToHHMM(endMin   - step));
+      e.preventDefault();
+    } else if (e.key === 'ArrowDown') {
+      this.previewStart.set(this.minToHHMM(startMin + step));
+      this.previewEnd.set(this.minToHHMM(endMin   + step));
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      this.confirmPlace();
+      e.preventDefault();
+    } else if (e.key === 'Escape') {
+      this.cancelPlace();
+      e.preventDefault();
     }
   }
+  ghostTopPx(): number {
+    const [hStr, mStr] = this.previewStart().split(':');
+    const h = Number(hStr) || this.START_HOUR;
+    const m = Number(mStr) || 0;
+    const minutesFromStart = (h - this.START_HOUR) * 60 + m;
+    return Math.max(0, minutesFromStart * (this.SLOT_PX / 60));
+  }
+  confirmPlace() {
+    if (!this.pendingTemplateId) return;
+    const t = this.templates().find(x => x.id === this.pendingTemplateId);
+    if (!t) return;
+
+    const d = this.previewDay();
+    const s = this.previewStart();
+    const e = this.addMinutes(s, this.previewDurationMin);
+
+    this.addEventFromTemplate(t, d, s, e, this.pendingWeekly);
+    this.cancelPlace();
+  }
+  cancelPlace() {
+    this.placing.set(false);
+    this.pendingTemplateId = null;
+    this.pendingWeekly = false;
+  }
+
+ 
+  evTrackBy(_i: number, ev: CalEvent) { return ev.id; }
 }

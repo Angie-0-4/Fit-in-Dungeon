@@ -8,5 +8,4 @@ import { RouterOutlet } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  protected readonly title = signal('finale');
 }

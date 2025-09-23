@@ -1,28 +1,26 @@
-:root { /* nur ein Scope-Container */
+:root { 
     --sidedebar-w: 260px;
     --sidebar-w-collapsed: 76px;
   }
 
 
-/* ======================
-   Layout Grundstruktur
-   ====================== */
+
    .layout {
-    display: flex;               /* Flex statt Grid */
+    display: flex;               
     min-height: 100vh;
     background: #f3f1f1;
     grid-template-columns: var(--sidedebar-w) 1fr;
     
   }
   
-  /* Wenn collapsed */
+
   .layout.collapsed .sidebar {
     width: 70px;
   }
   
   .layout.collapsed .brand img.logo {
     max-width: 70px;  
-    margin: -25px 0 0 -12px;           /* Logo kleiner im collapsed */
+    margin: -25px 0 0 -12px;          
   }
   
   .layout.collapsed .nav-item .label,
@@ -33,12 +31,10 @@
     overflow: hidden;
   }
   
-  /* ======================
-     Sidebar
-     ====================== */
+ 
   .sidebar {
-    width: 200px;                /* Standardbreite */
-    background: linear-gradient(180deg, #2c4b5b, #034171);
+    width: 200px;                
+    background: linear-gradient(180deg, #271212, #600404);
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -49,15 +45,13 @@
     transition: width 0.25s ease;
   }
   
-  /* ======================
-     Logo
-     ====================== */
+
   .brand {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 30px;
-    cursor: pointer;             /* wichtig für Klick */
+    cursor: pointer;          
   }
   
   .brand img.logo {
@@ -66,9 +60,7 @@
     transition: max-width 0.2s ease, transform 0.2s ease;
   }
   
-  /* ======================
-     Navigation
-     ====================== */
+
   .nav {
     display: flex;
     flex-direction: column;
@@ -96,14 +88,11 @@
   }
   
   .nav-item.active {
-    background: #1e6091;
+    background: #2c0000;
     color: #fff;
     font-weight: 600;
   }
-  
-  /* ======================
-     Icon + Label
-     ====================== */
+
   .icon {
     width: 22px;
     text-align: center;
@@ -115,9 +104,7 @@
     font-size: 15px;
   }
   
-  /* ======================
-     Logout Button
-     ====================== */
+ 
   .logout {
     margin-top: 50px;
     border: none;
@@ -137,9 +124,7 @@
     background: #ffffff33;
   }
   
-  /* ======================
-     Content Bereich
-     ====================== */
+
   .content-area {
     flex: 1;
     display: flex;

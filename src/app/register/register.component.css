@@ -24,26 +24,26 @@
     opacity: 0;
   }
   
-  /* Hover-Farben pro Option */
-  .choices li.yes:hover{ color:#0f0; }  /* grün */
-  .choices li.no:hover{ color:#f00; }   /* rot */
+
+  .choices li.yes:hover{ color:#0f0; } 
+  .choices li.no:hover{ color:#f00; }  
 
   .choices li:hover::before {
     opacity: 1;
   }
 
   .sure-choices li.yes:hover {
-    color: #f00; /* rot */
+    color: #f00; 
   }
   .sure-choices li.no:hover {
-    color: #0f0; /* grün */
+    color: #0f0; 
   }
 
 
   .game-container {
     position: relative;
     width: 100%;
-    height: 100vh; /* nimmt den ganzen Bildschirm */
+    height: 100vh; 
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -63,22 +63,9 @@
     color: white;
     border: 4px solid white;
     padding: 16px;
-    font-family: 'Press Start 2P', monospace; /* Pixel-Schrift (Google Fonts) */
+    font-family: 'Press Start 2P', monospace; 
     font-size: 14px;
     line-height: 1.5;
   }
   
-  .choices {
-    margin-top: 10px;
-    display: flex;
-    gap: 20px;
-  }
-  
-  .choices span {
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-  
-  .choices span:hover {
-    color: red;
-  }
+ 

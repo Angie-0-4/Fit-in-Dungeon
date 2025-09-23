@@ -12,18 +12,18 @@ import { RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
-  /** Sidebar-Zustand: true = eingeklappt, false = offen */
+ 
   isCollapsed = signal(false);
 
   ngOnInit(): void {
-    // gespeicherten Zustand laden (optional)
+   
     const saved = localStorage.getItem('fid.sidebarCollapsed');
     if (saved !== null) {
       this.isCollapsed.set(saved === 'true');
     }
   }
 
-  /** Logo klick -> Sidebar ein/ausklappen */
+
   toggleSidebar(): void {
     this.isCollapsed.update(prev => {
       const next = !prev;
@@ -32,7 +32,7 @@ export class MainComponent implements OnInit {
     });
   }
 
-  /** Auf kleinen Screens Sidebar nach Navigation automatisch schließen */
+
   collapseOnNavigate(): void {
     if (window.innerWidth < 1024) {
       this.isCollapsed.set(true);
@@ -40,7 +40,7 @@ export class MainComponent implements OnInit {
     }
   }
 
-  /** Optional: bei Resize automatisch offen lassen ab Desktop */
+
   @HostListener('window:resize')
   onResize(): void {
     if (window.innerWidth >= 1024 && this.isCollapsed()) {
@@ -49,9 +49,9 @@ export class MainComponent implements OnInit {
     }
   }
 
-  /** Logout-Button (Hook für deine Auth) */
+
   onLogout(): void {
-    // TODO: hier deine echte Logout-Logik einbauen
+    
     console.log('Logout clicked');
   }
 

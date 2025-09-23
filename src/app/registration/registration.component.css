@@ -1,20 +1,13 @@
-/* =========================================================
-   GLOBAL / HINTERGRUND
-   ========================================================= */
+
    :host {
     display: block;
     width: 100vw;
     height: 100vh;
     background: url('/assets/img/king.jpeg') center / cover no-repeat fixed;
-    /* Pixel-Font */
+
     font-family: Tiny5, monospace;
   }
-  
-  /* =========================================================
-     DIALOG-BOX (.text)
-     – Legt sich unten mittig über das Bild
-     – Enthält: Sprecher-Name, Text, Formulare, Buttons
-     ========================================================= */
+
   .text {
     position: absolute;
     left: 50%;
@@ -38,7 +31,7 @@
     text-align: left;
   }
   
-  /* Sprecher-Badge oben an der Box */
+
   .name {
     position: absolute;
     top: -28px;
@@ -52,12 +45,10 @@
     box-sizing: border-box;
   }
   
-  /* Fließtext in der Box */
+
   .text p { margin: 20px 15px; font-size: 25px; }
   
-  /* =========================================================
-     FORMULAR-STYLES (schlank, pixelig, responsiv)
-     ========================================================= */
+
   .form-col {
     display: flex;
     flex-direction: column;
@@ -68,6 +59,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-left: 18px;
   }
   
   .form-col label {
@@ -77,7 +69,7 @@
     margin-left: 15px;
   }
   
-  /* Inputs */
+  
   .pixel-input {
     flex: 1;
     width: 100%;
@@ -88,6 +80,8 @@
     font-family: Tiny5, monospace;
     font-size: 25px;
     outline: none;
+    margin-left: 18px;
+  
   }
   
   .pixel-input::placeholder {
@@ -95,22 +89,18 @@
     font-style: normal;
   }
   
-  /* Fehlermeldung */
+
   .error {
     font-size: 15px;
     color: #ff5555;
     margin-left: 15px;
   }
   
-  /* =========================================================
-     BUTTONS IN DER BOX (unten rechts, ohne Hardcodes)
-     – Beide Buttons stehen am unteren Rand rechts
-     – Wenn nur einer da ist, sitzt er dort alleine
-     ========================================================= */
+
   .next,
   .submit-btn {
-    align-self: flex-end;   /* rechtsbündig */
-    margin-top: auto;       /* nach unten drücken */
+    align-self: flex-end;   
+    margin-top: auto;      
     background: transparent;
     border: none;
     color: #fff;
@@ -128,13 +118,11 @@
   .next:active,
   .submit-btn:active { transform: translateY(1px); }
   
-  /* Wenn beide vorhanden sind, etwas Abstand zwischen ihnen */
+  
   .next + .submit-btn,
   .submit-btn + .next { margin-left: 16px; }
   
-  /* =========================================================
-     AUSWAHLLISTEN (Gender / Ready)
-     ========================================================= */
+
      .gender-choice {
       display: flex;
       justify-content: center;

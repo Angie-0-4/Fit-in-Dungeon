@@ -1,11 +1,11 @@
 
 
-<!-- Dialog + ALLE Steps in EINER Box -->
+
 <div class="text">
   <div class="name">{{ currentName }}</div>
   <p class="display">{{ displayText }}</p>
 
-  <!-- NAME -->
+ 
   <form *ngIf="showNameForm" class="form-col" (ngSubmit)="submitName()">
     <div class="row">
       <label for="uname">Username:</label>
@@ -23,7 +23,7 @@
     <button type="submit" class="submit-btn">Submit</button>
   </form>
 
-  <!-- PASSWORD – SCHRITT 1 -->
+
   <form *ngIf="showPassForm" class="form-col" (ngSubmit)="submitPassword()">
     <div class="row">
       <label for="pwd">Password:</label>
@@ -42,30 +42,33 @@
     <button type="submit" class="submit-btn">Submit</button>
   </form>
 
-  <!-- PASSWORD REPEAT – SCHRITT 2 -->
-  <form *ngIf="showRepeatForm"
-  class="form-col"
-  (ngSubmit)="submitRepeatPassword()"
-  #repeatForm="ngForm"
-  novalidate>
-<div class="row">
-<label for="pwd2">Repeat:</label>
-<input id="pwd2"
-       #pwd2Input
-       type="password"
-       name="pwd2"
-       class="pixel-input"
-       placeholder="Repeat your password!"
-       [(ngModel)]="password2"
-       required minlength="6" maxlength="64"
-       (keydown.enter)="$event.stopPropagation(); repeatForm.ngSubmit.emit()"/>
-</div>
 
-<div class="error" *ngIf="passError">{{ passError }}</div>
-<button type="submit" class="submit-btn" [disabled]="loading">Submit</button>
+<form *ngIf="showRepeatForm" class="form-col" (ngSubmit)="submitRepeatPassword()">
+  <div class="row">
+    <label for="pwd2">Repeat:</label>
+    <input
+      id="pwd2"
+      type="password"
+      [(ngModel)]="password2"
+      name="pwd2"
+      class="pixel-input"
+      required
+      minlength="6"
+      placeholder="Repeat password..."
+      (keydown.enter)="$event.preventDefault(); submitRepeatPassword()"
+    />
+  </div>
+
+  
+  <div class="error" *ngIf="passError">{{ passError }}</div>
+
+
+  <button type="button" class="submit-btn" (click)="submitRepeatPassword()">
+    Submit
+  </button>
 </form>
 
- <!-- Gender-Auswahl -->
+
 <div class="gender-choice" *ngIf="showGender">
   <div class="gender-card" (click)="chooseGender('sir')">
     <img src="/assets/img/knightM.png" alt="Male Knight" class="knightM"/>
@@ -77,13 +80,13 @@
   </div>
 </div>
 
-  <!-- READY -->
+ 
   <ul class="ready" *ngIf="showReady">
     <li (click)="chooseReady(true)">Yes, I’m ready!</li>
     <li (click)="chooseReady(false)">No, I’m so scared…</li>
   </ul>
 
-  <!-- Continue-Button bleibt in der Box -->
+  
   <button *ngIf="showNext" class="next" (click)="onNext()">Continue</button>
 </div>
 

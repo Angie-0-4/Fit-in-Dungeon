@@ -1,0 +1,15 @@
+/* Layout */
+.set-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+  
+  /* Hero */
+  .set-hero {
+    position: relative;
+    height: 220px;
+    margin: -24px -24px 18px -24px;           /* flush zum Seitenrand wie bei dir */
+    background: url('/assets/img/bib.jpeg') center 70% / cover no-repeat;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }

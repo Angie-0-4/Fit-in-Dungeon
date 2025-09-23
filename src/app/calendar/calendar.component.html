@@ -1,37 +1,33 @@
-<div class="calender-root">
+<div class="cal-root">
 
-  <!-- Hero oben (wie bei Workout) -->
+ 
   <header class="cal-hero">
     <div class="hero-overlay">
       <div class="hero-meta">
         <button class="chip">{{ weekDays?.[0]?.date | date:'dd. MMM' }}</button>
         <button class="chip">Dungeon · Tokio</button>
         <div class="hero-actions">
-          <button class="primary" (click)="showAddModal = true">Workout hinzufügen</button>
+          <button class="primary" (click)="openAddModal()">Workout hinzufügen</button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Header-Leiste -->
+ 
   <header class="cal-header">
     <div class="left">
       <button class="nav-btn" (click)="prevWeek()">‹</button>
       <button class="nav-btn" (click)="nextWeek()">›</button>
       <h2>Wochenplan</h2>
     </div>
-    <div class="right">
-      <button class="secondary" (click)="showAddModal = true">Workout hinzufügen</button>
-    </div>
   </header>
 
+
   <div class="calendar">
-    <!-- linke Stundenleiste -->
     <aside class="time-gutter">
       <div class="time" *ngFor="let h of hours()">{{ h }}</div>
     </aside>
 
-    <!-- Woche -->
     <section class="week">
       <div class="day" *ngFor="let d of weekDays; let i = index">
         <div class="day-header">
@@ -39,23 +35,37 @@
           <div class="day-date">{{ d.label.split(',')[1].trim() }}</div>
         </div>
 
-        <div class="day-body" (click)="onDayClick(i, $event)">
+        <div class="day-body"
+             (mousemove)="onDayMouseMove(i, $event)"
+             (click)="onDayClick(i, $event)">
+      
           <div class="event"
                *ngFor="let ev of eventsByDay(i); trackBy: evTrack"
                [ngStyle]="styleFor(ev)">
             <div class="ev-title">{{ ev.title }}</div>
             <div class="ev-time">{{ ev.start }} – {{ ev.end }}</div>
+            <button class="ev-del" title="Löschen" (click)="removeEvent(ev)">×</button>
           </div>
+
+          
+        
+<div class="ghost"
+*ngIf="placing() && previewDay() === i"
+[style.top.px]="ghostTopPx()">
+<div class="ghost-box">
+{{ previewStart() }} – {{ previewEnd() }} · Enter = setzen, ↑/↓ = ±15 min, Esc = abbrechen
+</div>
+</div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Modal -->
+  
   <app-add-workout-modal
-    [open]="showAddModal"
-    [templates]="templates"
-    (pick)="onTemplatePicked($event)"
-    (close)="showAddModal = false">
+    [open]="showAddModal()"
+    [templates]="templates()"
+    (close)="closeAddModal()"
+    (pick)="addPickedWorkout($event)">
   </app-add-workout-modal>
 </div>
