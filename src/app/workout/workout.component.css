@@ -12,7 +12,7 @@ main.workout-content {
 
 .hero{
   position:relative; height:46vh;
-  background:url('/assets/img/gym.jpeg') center/cover no-repeat;
+  background:url('/assets/gym.jpeg') center/cover no-repeat;
   display:flex; align-items:flex-end; justify-content:center;
   margin:-24px -24px 12px -24px; 
 }

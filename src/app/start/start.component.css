@@ -1,6 +1,6 @@
 :host{
   min-height: 100vh;
-  background: url('/assets/img/schloss.jpeg') center/cover no-repeat;
+  background: url('/assets/schloss.jpeg') center/cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: flex-end;

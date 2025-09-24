@@ -3,7 +3,7 @@
     display: block;
     width: 100vw;
     height: 100vh;
-    background: url('/assets/img/king.jpeg') center / cover no-repeat fixed;
+    background: url('/assets/king.jpeg') center / cover no-repeat fixed;
 
     font-family: Tiny5, monospace;
   }

@@ -1,7 +1,7 @@
 .cal-hero{
   position: relative;
   height: 40vh;
-  background: url('/assets/img/bib.jpeg') center 80% / cover no-repeat;
+  background: url('/assets/bib.jpeg') center 80% / cover no-repeat;
   display: flex; align-items: flex-end; justify-content: center;
   margin: -24px -24px 16px -24px;
 }

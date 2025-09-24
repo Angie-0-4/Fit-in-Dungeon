@@ -80,7 +80,7 @@ scroll-snap-stop: always;
 
 .scene.hero {
   position: relative;
-  background: url("/assets/img/eingang.jpeg") right/contain no-repeat;
+  background: url("/assets/eingang.jpeg") right/contain no-repeat;
   background-color: black;
 }
 .scene.hero::before {
@@ -127,7 +127,7 @@ scroll-snap-stop: always;
   text-decoration: none;
 }
 .scene.gang {
-  background: url("/assets/img/gang.jpeg") center center no-repeat;
+  background: url("/assets/gang.jpeg") center center no-repeat;
   background-color: black;
   background-size: 600px;
 }
