@@ -108,7 +108,7 @@ Auth: Session Handling mit Cookies
 ---
 Screenshots
 
-![Login Seite](Bildschirmfoto 2025-09-24 um 13.50.13.png)
+![Login Seite](Screenshots/Bildschirmfoto 2025-09-24 um 13.50.13.png)
 
 ---
 
