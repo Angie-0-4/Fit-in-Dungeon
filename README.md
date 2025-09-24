@@ -106,11 +106,6 @@ Datenbank: MongoDB/MongoDB Compass (Mongoose ODM)
 Auth: Session Handling mit Cookies
 
 ---
-Screenshots
-
-![Login Seite](screenshots/Bildschirmfoto 2025-09-24 um 13.50.13.png)
-
----
 
 👩‍💻 Entwicklerin:
 
