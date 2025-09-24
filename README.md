@@ -91,7 +91,7 @@ SESSION_SECRET: beliebiger String für die Session-Signierung
 
 PORT: Port für das Backend (Default: 3000)
 
-
+https://github.com/Angie-0-4/Fit-in-Dungeon/blob/main/screenshots/Bildschirmfoto%202025-09-24%20um%2013.50.13.png
 
 ---
 
